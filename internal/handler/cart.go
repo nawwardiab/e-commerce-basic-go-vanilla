@@ -20,7 +20,7 @@ func NewCartHandler(sess *session.Session, prodSvc service.ProductService) *cart
   return &cart{session: *sess, prodSvc: prodSvc}
 }
 // CartHandler – loads cart from session, renders products in template
-func (c *cart) HandleCart(w http.ResponseWriter, r *http.Request){
+func (c *cart) CartHandler(w http.ResponseWriter, r *http.Request){
   // checks if user logged in
   if !c.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)

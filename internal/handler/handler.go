@@ -18,7 +18,7 @@ type ProdHandler interface {
 }
 
 type CartHandler interface {
-	HandleCart(w http.ResponseWriter, r *http.Request)
+	CartHandler(w http.ResponseWriter, r *http.Request)
 	AddToCartHandler(w http.ResponseWriter, r *http.Request)
 	RemoveFromCartHandler(w http.ResponseWriter, r *http.Request)
 }

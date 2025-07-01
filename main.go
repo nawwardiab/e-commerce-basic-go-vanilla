@@ -60,7 +60,7 @@ func main() {
 	http.HandleFunc("GET /products/{id}", ph.ProductDetailsHandler)
 	http.HandleFunc("/cart/add", ch.AddToCartHandler)
 	http.HandleFunc("/cart/remove", ch.RemoveFromCartHandler)
-	http.HandleFunc("/cart", ch.HandleCart)
+	http.HandleFunc("/cart", ch.CartHandler)
 
 	// 8. start server and listen
 	srv := &http.Server{
