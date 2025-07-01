@@ -3,10 +3,20 @@ package repository
 import (
 	"fmt"
 	"server/internal/model"
+
+	"github.com/jackc/pgx"
 )
 
+type productRepo struct {
+	db *pgx.Conn
+}
+
+func NewProductRepo(db *pgx.Conn) *productRepo {
+	return &productRepo{db: db}
+}
+
 // GeAllProducts – queries db products table and returns products details
-func (r Repo) GetAllProducts() ([]model.Product, error) {
+func (r productRepo) GetAllProducts() ([]model.Product, error) {
   rows, err := r.db.Query(`SELECT * FROM products`)
   if err != nil {
     return nil, fmt.Errorf("postgres: ListAllProducts products: %w", err)
@@ -38,7 +48,7 @@ func (r Repo) GetAllProducts() ([]model.Product, error) {
 }
 
 // GetProductDetails – queries db products table and returns queried product's details
-func (r Repo) GetProductDetails(id int) (*model.Product, error) {
+func (r productRepo) GetProductDetails(id int) (*model.Product, error) {
   query := `SELECT * FROM products WHERE id=$1`
   row := r.db.QueryRow(query, id)
 

@@ -1,24 +1,29 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 // Config holds app configuration
 type Config struct {
-	StaticDir string         `json:"static_dir"`
+	StaticDir string         `yaml:"static_dir"`
 	Server struct {
-		PORT string `json:"port"`
-		HOST string `json:"host"`
-	} `json:"server"`
+		PORT string `yaml:"port"`
+		HOST string `yaml:"host"`
+	} `yaml:"server"`
 	DB struct {
-		DSN string `json:"dsn"`
-	} `json:"db"`
+		HOST string `yaml:"host"`
+		PORT string `yaml:"port"`
+		USER string `yaml:"user"`
+		PWD string `yaml:"pwd"`
+		DBNAME string `yaml:"dbname"`
+	} `yaml:"db"`
 	Session struct {
-		Key string `json:"key"`
-	} `json:"session"`
+		Key string `yaml:"key"`
+	} `yaml:"session"`
 }
 
 // Read config.json and populate Config
@@ -30,7 +35,7 @@ func Load(path string) (*Config, error){
 	defer f.Close()
 
 	var cfg Config
-	if err := json.NewDecoder(f).Decode(&cfg); err != nil {
+	if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
 		return nil, fmt.Errorf("config: decode %q: %w", path, err)
 	}
 	return &cfg, nil

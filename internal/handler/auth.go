@@ -4,12 +4,22 @@ import (
 	"errors"
 	"net/http"
 	"server/internal/service"
+	"server/internal/session"
 	"server/internal/view"
 	"strconv"
 )
 
+type auth struct {
+  userSvc service.UserService
+  session session.Session
+}
+
+func NewAuthHandler(userService service.UserService, sess *session.Session) *auth{
+  return &auth{userSvc: userService, session: *sess}
+}
+
 // RegisterHandler – handles http request to create a new user
-func (h Handler) RegisterHandler(w http.ResponseWriter, r *http.Request){
+func (ah *auth) RegisterHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method == http.MethodGet {
     _ = view.Render(w, "register.tpl", nil)
     return
@@ -25,7 +35,7 @@ func (h Handler) RegisterHandler(w http.ResponseWriter, r *http.Request){
       return
     }
 
-    _, err := h.svcs.UserSvc.Register(usr, email, pwd)
+    _, err := ah.userSvc.Register(usr, email, pwd)
     if err != nil {
       if errors.Is(err, service.ErrUserExist) {
         _ = view.Render(w, "register.tpl", service.ErrUserExist.Error())
@@ -43,7 +53,7 @@ func (h Handler) RegisterHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // LoginHandler – handles http request to log in an existing user and redirect to home page.
-func (h Handler) LoginHandler(w http.ResponseWriter, r *http.Request){
+func (ah *auth) LoginHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method == http.MethodGet {
     _ =  view.Render(w, "login.tpl", nil)
     return
@@ -52,8 +62,8 @@ func (h Handler) LoginHandler(w http.ResponseWriter, r *http.Request){
     // POST
     username := r.FormValue("username")
     password := r.FormValue("password")
-    user, loginErr := h.svcs.UserSvc.Login(username, password)
-    sessErr := h.session.Set(w, r, "user_id", strconv.Itoa(user.ID))
+    user, loginErr := ah.userSvc.Login(username, password)
+    sessErr := ah.session.Set(w, r, "user_id", strconv.Itoa(user.ID))
     if loginErr != nil {
       code := http.StatusInternalServerError
       if errors.Is(loginErr, service.ErrInvalidCredentials) {
@@ -73,8 +83,8 @@ func (h Handler) LoginHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // LogoutHandler – removes the session and redirects to login page
-func (h Handler) LogoutHandler(w http.ResponseWriter, r *http.Request){
-	err := h.session.Delete(w, r)
+func (ah *auth) LogoutHandler(w http.ResponseWriter, r *http.Request){
+	err := ah.session.Delete(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	return

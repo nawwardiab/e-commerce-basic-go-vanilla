@@ -2,18 +2,30 @@ package handler
 
 import (
 	"net/http"
+	"server/internal/service"
+	"server/internal/session"
 	"server/internal/view"
 	"strconv"
 )
 
+type Prod struct {
+  prodSvc service.ProductService
+  session session.Session
+}
+
+
+func NewProdHandler(prodSvc service.ProductService, sess *session.Session) *Prod{
+  return &Prod{prodSvc: prodSvc, session: *sess}
+}
+
 // ProductsHandler – handles http request: fetches all products & renders products page.
-func (h Handler) ProductsHandler(w http.ResponseWriter, r *http.Request){
+func (ph *Prod) ProductsHandler(w http.ResponseWriter, r *http.Request){
 				
-	if !h.session.Has(r) {
+	if !ph.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)
     return
   }
- 	products, err := h.svcs.ProductSvc.Get()
+ 	products, err := ph.prodSvc.Get()
   if err != nil {
     http.Error(w, "server error", http.StatusInternalServerError)
     return
@@ -26,9 +38,9 @@ func (h Handler) ProductsHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // ProductDetailsHandler –  handles http request: fetches requested product details, renders singleProduct.tpl
-func (h Handler) ProductDetailsHandler(w http.ResponseWriter, r *http.Request){
+func (ph *Prod) ProductDetailsHandler(w http.ResponseWriter, r *http.Request){
 
-  if !h.session.Has(r) {
+  if !ph.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)
     return
   }
@@ -39,7 +51,7 @@ func (h Handler) ProductDetailsHandler(w http.ResponseWriter, r *http.Request){
     return
   }
 
-  product, err := h.svcs.ProductSvc.GetProductByID(id)
+  product, err := ph.prodSvc.GetProductByID(id)
   if err != nil {
     http.Error(w, "server error", http.StatusInternalServerError)
     return

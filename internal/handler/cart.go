@@ -10,15 +10,23 @@ import (
 	"strconv"
 )
 
+type cart struct {
+  session session.Session
+  prodSvc service.ProductService
+}
+
+func NewCartHandler(sess *session.Session, prodSvc service.ProductService) *cart{
+  return &cart{session: *sess, prodSvc: prodSvc}
+}
 // CartHandler – loads cart from session, renders products in template
-func (h Handler) CartHandler(w http.ResponseWriter, r *http.Request){
+func (c *cart) HandleCart(w http.ResponseWriter, r *http.Request){
   // checks if user logged in
-  if !h.session.Has(r) {
+  if !c.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)
     return
   }
   // load cart from session
-  cart, err := loadCart(h.session, r)
+  cart, err := loadCart(&c.session, r)
   if err != nil {
       http.Error(w, "cannot load cart", http.StatusSeeOther)
       return
@@ -27,7 +35,7 @@ func (h Handler) CartHandler(w http.ResponseWriter, r *http.Request){
   // fetch each product and append it to CartItem slice
   var items []model.CartItem
   for pid, qty := range cart {
-    prod, _ := h.svcs.ProductSvc.GetProductByID(pid)
+    prod, _ := c.prodSvc.GetProductByID(pid)
     items = append(items, model.CartItem{
       ProductID: pid,
       Quantity:  qty,
@@ -39,30 +47,31 @@ func (h Handler) CartHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // AddToCartHandler – adds an item to cart (prodId and quantity)
-func (h Handler) AddToCartHandler(w http.ResponseWriter, r *http.Request){
+func (c *cart) AddToCartHandler(w http.ResponseWriter, r *http.Request){
 
   if r.Method != http.MethodPost {
     http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
     return
   } else {
     // 1. checks if user logged in
-    if !h.session.Has(r) {
+    if !c.session.Has(r) {
       http.Redirect(w, r, "/login", http.StatusSeeOther)
       return
     }
 
+    //! I got id, received product and retracted id from it later (Where is your ear)
     pid, _ := strconv.Atoi(r.FormValue("product_id"))
     qty, _ := strconv.Atoi(r.FormValue("quantity"))
 
     // 2. Load existing cart from session
-    cart, err := loadCart(h.session, r)
+    cart, err := loadCart(&c.session, r)
     if err != nil {
       http.Error(w, "could not load cart", http.StatusInternalServerError)
       return
     }
 
     // 3. Fetch product from productSvc
-    prod, err := h.svcs.ProductSvc.GetProductByID(pid)
+    prod, err := c.prodSvc.GetProductByID(pid)
     if err != nil {
       http.Error(w, "product not found", http.StatusNotFound)
       return
@@ -72,7 +81,7 @@ func (h Handler) AddToCartHandler(w http.ResponseWriter, r *http.Request){
     updatedCart, _ := service.AddToCart(cart, *prod, qty)
 
     // 5. Persist updatedCart back into session
-    if err := saveCart(h.session, w, r, updatedCart); err != nil {
+    if err := saveCart(&c.session, w, r, updatedCart); err != nil {
       http.Error(w, "cannot save cart", http.StatusBadRequest)
       return
     }
@@ -82,12 +91,12 @@ func (h Handler) AddToCartHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // RemoveFromCartHandler – removes an item from cart || reduces quantity
-func (h Handler) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
+func (c *cart) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method != http.MethodPost {
         http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
         return
     }
-    if !h.session.Has(r) {
+    if !c.session.Has(r) {
         http.Redirect(w, r, "/login", http.StatusSeeOther)
         return
     }
@@ -100,7 +109,7 @@ func (h Handler) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // Load existing cart
-    cart, err := loadCart(h.session, r)
+    cart, err := loadCart(&c.session, r)
     if err != nil {
         http.Error(w, "could not load cart", http.StatusInternalServerError)
         return
@@ -110,7 +119,7 @@ func (h Handler) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
     updatedCart := service.RemoveFromCart(cart, pid)
 
     // Save the updated cart
-    if err := saveCart(h.session, w, r, updatedCart); err != nil {
+    if err := saveCart(&c.session, w, r, updatedCart); err != nil {
         http.Error(w, "could not save cart", http.StatusInternalServerError)
         return
     }

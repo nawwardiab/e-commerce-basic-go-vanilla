@@ -15,7 +15,7 @@
 
   {{with .Product}}
   <div style="max-width:600px; margin:2em auto;">
-    <img src="{{.Img}}" alt="{{.Title}}" style="width:100%; max-width:300px;">
+    <img src="/static/{{.Img}}" alt="{{.Title}}" style="width:100%; max-width:300px;">
     <h1>{{.Title}}</h1>
     <p>By {{.Artist}} ({{.Year}}) • Genre: {{.Genre}}</p>
     <p><strong>Price:</strong> ${{printf "%d" .Price}}</p>

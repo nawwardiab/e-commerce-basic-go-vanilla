@@ -1,23 +1,24 @@
 package handler
 
-import (
-	"server/internal/service"
-	"server/internal/session"
-)
+import "net/http"
 
-// TODO:
-// restructure:
-// abstract services into a Services struct.
-// pass Services type into the handler.
-//! update occurences –> e.g. h.userSvc –> h.svcs.userSvc
-
-// Handler struct – abstracts handlers and assign only data each handler requires
-type Handler struct{
-	svcs service.Services
-  session    *session.Session
+type HomeHandler interface {
+	HomeHandler(w http.ResponseWriter, r *http.Request)
 }
 
-// contructs abstract NewHandler after passing required data
-func NewHandler(svcs service.Services, session *session.Session,) *Handler {
-	return &Handler{svcs: svcs, session: session,}
+type AuthHandler interface {
+	RegisterHandler(w http.ResponseWriter, r *http.Request)
+	LoginHandler(w http.ResponseWriter, r *http.Request)
+	LogoutHandler(w http.ResponseWriter, r *http.Request)
+}
+
+type ProdHandler interface {
+	ProductsHandler(w http.ResponseWriter, r *http.Request)
+	ProductDetailsHandler(w http.ResponseWriter, r *http.Request)
+}
+
+type CartHandler interface {
+	HandleCart(w http.ResponseWriter, r *http.Request)
+	AddToCartHandler(w http.ResponseWriter, r *http.Request)
+	RemoveFromCartHandler(w http.ResponseWriter, r *http.Request)
 }

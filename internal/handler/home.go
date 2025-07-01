@@ -2,11 +2,19 @@ package handler
 
 import (
 	"net/http"
+	"server/internal/session"
 	"server/internal/view"
 )
 
+type home struct {
+  session session.Session
+}
 
-func (h Handler) HomeHandler(w http.ResponseWriter, r *http.Request){
+func NewHomeHandler(sess *session.Session) *home{
+  return &home{session: *sess}
+}
+
+func (h *home) HomeHandler(w http.ResponseWriter, r *http.Request){
 	// 1. check if user is logged in
 	if !h.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusFound)

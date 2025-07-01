@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"server/internal/model"
+	"server/internal/repository"
 
 	"github.com/jackc/pgx"
 	"golang.org/x/crypto/bcrypt"
@@ -14,30 +15,26 @@ var ErrInvalidCredentials = errors.New("service: invalid credentials")
 var ErrUserExist = errors.New("service: User already exists")
 
 // UserService Interface type (exported)
-type UserService interface {
-	Register(username, email, password string)(*model.User, error)
-	Login(username, password string) (*model.User, error)
-}
+// type UserService interface {
+// 	Register(username, email, password string)(*model.User, error)
+// 	Login(username, password string) (*model.User, error)
+// }
 
-// Unexported userRepo interface type
-type userRepo interface {
-	GetByUsername(username string) (*model.User, error)
-  CreateUser(u *model.User) error
-}
 
 // unexported userService that has repo attribute 
 type userService struct {
-  repo userRepo
+  userRepo repository.UserRepo
 }
 
+
 // Creates new UserService object (methods and db access through repo)
-func NewUserService(r userRepo) UserService {
-  return &userService{repo: r}
+func NewUserService(r repository.UserRepo) *userService {
+  return &userService{userRepo: r}
 }
 
 // Register – hashes password and returns a new user after querying the database.
-func (s userService) Register(username, email, password string) (*model.User, error) {
-  if existing, _ := s.repo.GetByUsername(username); existing != nil {
+func (s *userService) Register(username, email, password string) (*model.User, error) {
+  if existing, _ := s.userRepo.GetByUsername(username); existing != nil {
     return nil, ErrInvalidCredentials
   }
 
@@ -50,7 +47,7 @@ func (s userService) Register(username, email, password string) (*model.User, er
     Email: email,
     PasswordHash: hashedPwd,
   }
-  if err := s.repo.CreateUser(u); err != nil {
+  if err := s.userRepo.CreateUser(u); err != nil {
     return nil, err
   } else {
     return u, nil
@@ -58,8 +55,8 @@ func (s userService) Register(username, email, password string) (*model.User, er
 }
 
 // Login – queries db and compares input pwd with db pwd.
-func (s userService) Login(username, password string) (*model.User, error) {
-  u, err := s.repo.GetByUsername(username)
+func (s *userService) Login(username, password string) (*model.User, error) {
+  u, err := s.userRepo.GetByUsername(username)
 
   if err != nil {
     // only wrap ErrNoRows as invalid creds:

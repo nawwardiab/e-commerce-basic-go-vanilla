@@ -26,7 +26,7 @@
     {{range .Products}}
       <li>
         <a href="/products/{{.ID}}">
-          <img src="{{.Img}}" alt="{{.Title}}">
+          <img src="/static/{{.Img}}" alt="{{.Title}}">
         </a>
 
         <h2>{{.Title}}</h2>

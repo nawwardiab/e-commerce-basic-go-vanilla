@@ -1,11 +1,14 @@
 package repository
 
-import "github.com/jackc/pgx"
+import "server/internal/model"
 
-type Repo struct {
-  db *pgx.Conn
+
+type UserRepo interface {
+  GetByUsername(username string) (*model.User, error)
+  CreateUser(u *model.User) error
 }
 
-func NewRepo(db *pgx.Conn) *Repo {
-  return &Repo{db: db}
+type ProductRepo interface {
+  GetAllProducts() ([]model.Product, error)
+  GetProductDetails(id int) (*model.Product, error)
 }

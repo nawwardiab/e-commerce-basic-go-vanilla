@@ -1,7 +1,13 @@
 package service
 
-// Services struct – to access the interface business logic methods
-type Services struct {
-  UserSvc    UserService
-  ProductSvc ProductService
+import "server/internal/model"
+
+type UserService interface{
+	Register(username, email, password string) (*model.User, error)
+	Login(username, password string) (*model.User, error)
+}
+
+type ProductService interface {
+	Get() ([]model.Product, error)
+	GetProductByID(id int) (*model.Product, error)
 }
