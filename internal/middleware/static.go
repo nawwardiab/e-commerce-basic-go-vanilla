@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 )
 
-//TODO re-do
 //ServeStatic – prepares static directory and serves it to http.Handler
 func ServeStatic(path string) http.Handler{
   // Abstract static folder path
@@ -17,6 +16,5 @@ func ServeStatic(path string) http.Handler{
     
   // Serve /static/* from that dir
   fs := http.FileServer(http.Dir(absStaticDir))
-  staticHandler := http.StripPrefix("/static/", fs)
-  return staticHandler
+  return fs
 } 

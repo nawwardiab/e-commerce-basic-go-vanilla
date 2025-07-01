@@ -23,7 +23,7 @@
     <tbody>
     {{range .CartItems}}
       <tr>
-        <td><img src="{{.Product.Img}}" alt="{{.Product.Title}}" style="height:100px;"></td>
+        <td><img src="/static/{{.Product.Img}}" alt="{{.Product.Title}}" style="height:100px;"></td>
         <td>{{.Product.Title}}</td>
         <td>${{printf "%d" .Product.Price}}</td>
         <td>{{.Quantity}}</td>

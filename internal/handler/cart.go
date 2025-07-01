@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 	"server/internal/model"
 	"server/internal/service"
 	"server/internal/session"
 	"server/internal/view"
 	"strconv"
+
+	"gopkg.in/yaml.v3"
 )
 
 type cart struct {
@@ -142,7 +143,7 @@ func loadCart(s *session.Session, r *http.Request) (service.CartMap, error) {
   }
 
   var cart service.CartMap
-  loadErr := json.Unmarshal([]byte(raw), &cart)
+  loadErr := yaml.Unmarshal([]byte(raw), &cart)
   if loadErr != nil {
       return nil, loadErr
   }
@@ -151,7 +152,7 @@ func loadCart(s *session.Session, r *http.Request) (service.CartMap, error) {
 
 // saveCart – codes JSON from data and sets 
 func saveCart(s *session.Session, w http.ResponseWriter, r *http.Request, cart service.CartMap) error {
-    encoded, mashalErr := json.Marshal(cart)
+    encoded, mashalErr := yaml.Marshal(cart)
     if mashalErr != nil {
       return mashalErr
     }

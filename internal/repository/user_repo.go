@@ -17,7 +17,7 @@ type userRepo struct {
 func NewUserRepo(db *pgx.Conn) *userRepo {
 	return &userRepo{db: db}
 }
-// TODO: seperate Repos to have each one access only relevant table in db
+
 // GetByUsername uses the db connectio to query users table by username
 func (r *userRepo) GetByUsername(username string) (*model.User, error) {
   u := &model.User{}

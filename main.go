@@ -35,10 +35,6 @@ func main() {
 
 	sess := session.NewSession(cfg.Session.Key)
 
-	if err != nil {
-		log.Fatalf("failed to parse templates: %v", err)
-	}
-
 	// 5. wire repositories and services
 	userRepo := repository.NewUserRepo(dbConn)
 	userSvc := service.NewUserService(userRepo)
