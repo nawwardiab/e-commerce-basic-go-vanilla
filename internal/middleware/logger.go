@@ -15,8 +15,9 @@ func Logger(r *http.Request) {
 }
 // Handler – wraps the static handler and serves http Requests to static folder.
 func Handler(next http.Handler) http.Handler {
-  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	f := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
     Logger(r)
     next.ServeHTTP(w, r)
   })
+  return f
 }

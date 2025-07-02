@@ -16,6 +16,6 @@ func ServeStatic(path string) http.Handler{
     
   // Serve /static/* from that dir
   fs := http.FileServer(http.Dir(absStaticDir))
-  staticDir := http.StripPrefix("/static/", fs)
+  staticDir := http.StripPrefix("/staticFiles/", fs)
   return staticDir
 } 

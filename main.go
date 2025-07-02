@@ -15,9 +15,8 @@ import (
 )
 
 //TODO
-// !! interface
-// !!COMPLETE Static – serve static/ not static/imgs and update db
-// !STATIC NEED TO BE DONE – Logging system – for every single request including static usually in var/log/ – for now in the terminal
+// !COMPLETE Static – serve static/ not static/imgs and update db
+// !COMPLETE – Logging system – for every single request including static usually in var/log/ – for now in the terminal
 
 func main() {
 	// 1. Load configuration
@@ -53,7 +52,7 @@ func main() {
 
 	// 5. serve static files
 	static := middleware.Handler(middleware.ServeStatic(cfg.StaticDir))
-	http.Handle("GET /static/", static)
+	http.Handle("/staticFiles/", static)
 
 	// 6. register routes
 	http.HandleFunc("/", hh.HomeHandler) // catch all! 
