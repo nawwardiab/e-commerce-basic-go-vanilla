@@ -53,18 +53,20 @@ func main() {
 
 	// 5. serve static files
 	static := middleware.Handler(middleware.ServeStatic(cfg.StaticDir))
-	http.Handle("/static/", static)
+	http.Handle("GET /static/", static)
 
 	// 6. register routes
 	http.HandleFunc("/", hh.HomeHandler) // catch all! 
-	http.HandleFunc("/login", uh.LoginHandler)
-	http.HandleFunc("/register", uh.RegisterHandler)
-	http.HandleFunc("/logout", uh.LogoutHandler)
+	http.HandleFunc("GET /login", uh.GetLoginHandler)
+	http.HandleFunc("POST /login", uh.PostLoginHandler)
+	http.HandleFunc("POST /register", uh.PostRegisterHandler)
+	http.HandleFunc("GET /register", uh.GetRegisterHandler)
+	http.HandleFunc("GET /logout", uh.LogoutHandler)
 	http.HandleFunc("GET /products", ph.ProductsHandler)
 	http.HandleFunc("GET /products/{id}", ph.ProductDetailsHandler)
-	http.HandleFunc("/cart/add", ch.AddToCartHandler)
-	http.HandleFunc("/cart/remove", ch.RemoveFromCartHandler)
-	http.HandleFunc("/cart", ch.CartHandler)
+	http.HandleFunc("POST /cart/add", ch.AddToCartHandler)
+	http.HandleFunc("POST /cart/remove", ch.RemoveFromCartHandler)
+	http.HandleFunc("GET /cart", ch.CartHandler)
 
 	// 7. start server and listen
 	srv := &http.Server{

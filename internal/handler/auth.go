@@ -20,77 +20,69 @@ func NewAuthHandler(userService service.UserService, sess *session.Session) *Aut
 }
 
 // RegisterHandler – handles http request to create a new user
-func (ah *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request){
-	if r.Method == http.MethodGet {
+func (ah *AuthHandler) GetRegisterHandler(w http.ResponseWriter, r *http.Request){
+  middleware.Logger(r)
+  _ = view.Render(w, "register.tpl", nil)
+  return    
+}
+
+func (ah *AuthHandler) PostRegisterHandler(w http.ResponseWriter, r *http.Request){
+
+  usr := r.FormValue("username")
+  email := r.FormValue("email")
+  pwd := r.FormValue("password")
+  rep := r.FormValue("repeatedPassword")
+  if usr == "" || email == "" || pwd == "" || pwd != rep {
+    formErr := map[string]string{"Error": "Fill all fields and ensure passwords match"}
     middleware.Logger(r)
-    _ = view.Render(w, "register.tpl", nil)
+    _ = view.Render(w, "register.tpl", formErr)
     return
-    } else if r.Method == http.MethodPost{
-      
-      usr := r.FormValue("username")
-      email := r.FormValue("email")
-      pwd := r.FormValue("password")
-      rep := r.FormValue("repeatedPassword")
-      if usr == "" || email == "" || pwd == "" || pwd != rep {
-        formErr := map[string]string{"Error": "Fill all fields and ensure passwords match"}
-        middleware.Logger(r)
-        _ = view.Render(w, "register.tpl", formErr)
-        return
-      }
-      
-      _, err := ah.userSvc.Register(usr, email, pwd)
-      if err != nil {
-        if errors.Is(err, service.ErrUserExist) {
-        middleware.Logger(r)
-        _ = view.Render(w, "register.tpl", service.ErrUserExist.Error())
-        return
-        } else {
-        middleware.Logger(r)
-        http.Error(w, "server error", http.StatusInternalServerError)
-        return
-      }
-    }
-    middleware.Logger(r)
-    http.Redirect(w, r, "/login", http.StatusSeeOther)
-    } else {
-    middleware.Logger(r)
-    http.Error(w, "server error", http.StatusMethodNotAllowed)
-    return 
   }
+  
+  _, err := ah.userSvc.Register(usr, email, pwd)
+  if err != nil {
+      if errors.Is(err, service.ErrUserExist) {
+      middleware.Logger(r)
+      _ = view.Render(w, "register.tpl", service.ErrUserExist.Error())
+      return
+      } else {
+      middleware.Logger(r)
+      http.Error(w, "server error", http.StatusInternalServerError)
+      return
+    }
+  }
+  middleware.Logger(r)
+  http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 // LoginHandler – handles http request to log in an existing user and redirect to home page.
-func (ah *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request){
-  if r.Method == http.MethodGet {
+func (ah *AuthHandler) GetLoginHandler(w http.ResponseWriter, r *http.Request){
+  
     middleware.Logger(r)
     _ =  view.Render(w, "login.tpl", nil)
     return
-    } else if r.Method == http.MethodPost{
-      
-      // POST
-      username := r.FormValue("username")
-      password := r.FormValue("password")
-    user, loginErr := ah.userSvc.Login(username, password)
-    sessErr := ah.session.Set(w, r, "user_id", strconv.Itoa(user.ID))
-    if loginErr != nil {
-      code := http.StatusInternalServerError
-      if errors.Is(loginErr, service.ErrInvalidCredentials) {
-          code = http.StatusUnauthorized
-      }
-      middleware.Logger(r)
-      http.Error(w, loginErr.Error(), code)
-      return
-      } else if sessErr != nil {
-        middleware.Logger(r)
-        http.Error(w, "session error", http.StatusInternalServerError)
-        return
-        } else {
-          middleware.Logger(r)
-          http.Redirect(w, r, "/", http.StatusSeeOther)
-        }
+} 
+
+func (ah *AuthHandler) PostLoginHandler(w http.ResponseWriter, r *http.Request){
+  username := r.FormValue("username")
+  password := r.FormValue("password")
+  user, loginErr := ah.userSvc.Login(username, password)
+  sessErr := ah.session.Set(w, r, "user_id", strconv.Itoa(user.ID))
+  if loginErr != nil {
+    code := http.StatusInternalServerError
+    if errors.Is(loginErr, service.ErrInvalidCredentials) {
+        code = http.StatusUnauthorized
+    }
+    middleware.Logger(r)
+    http.Error(w, loginErr.Error(), code)
+    return
+  } else if sessErr != nil {
+    middleware.Logger(r)
+    http.Error(w, "session error", http.StatusInternalServerError)
+    return
   } else {
     middleware.Logger(r)
-    http.Error(w, "server error", http.StatusMethodNotAllowed)
+    http.Redirect(w, r, "/", http.StatusSeeOther)
   }
 }
 
