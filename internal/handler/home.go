@@ -31,6 +31,5 @@ func (h *HomeHandler) HomeHandler(w http.ResponseWriter, r *http.Request){
       return
     }
     middleware.Logger(r)
-
   }
 }
