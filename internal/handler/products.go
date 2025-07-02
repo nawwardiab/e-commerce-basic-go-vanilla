@@ -8,18 +8,18 @@ import (
 	"strconv"
 )
 
-type Prod struct {
+type ProductHandler struct {
   prodSvc service.ProductService
   session session.Session
 }
 
 
-func NewProdHandler(prodSvc service.ProductService, sess *session.Session) *Prod{
-  return &Prod{prodSvc: prodSvc, session: *sess}
+func NewProdHandler(prodSvc service.ProductService, sess *session.Session) *ProductHandler{
+  return &ProductHandler{prodSvc: prodSvc, session: *sess}
 }
 
 // ProductsHandler – handles http request: fetches all products & renders products page.
-func (ph *Prod) ProductsHandler(w http.ResponseWriter, r *http.Request){
+func (ph *ProductHandler) ProductsHandler(w http.ResponseWriter, r *http.Request){
 				
 	if !ph.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -38,7 +38,7 @@ func (ph *Prod) ProductsHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // ProductDetailsHandler –  handles http request: fetches requested product details, renders singleProduct.tpl
-func (ph *Prod) ProductDetailsHandler(w http.ResponseWriter, r *http.Request){
+func (ph *ProductHandler) ProductDetailsHandler(w http.ResponseWriter, r *http.Request){
 
   if !ph.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)

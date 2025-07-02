@@ -10,16 +10,16 @@ import (
 
 
 
-type userRepo struct {
+type UserRepo struct {
   db *pgx.Conn
 }
 
-func NewUserRepo(db *pgx.Conn) *userRepo {
-	return &userRepo{db: db}
+func NewUserRepo(db *pgx.Conn) *UserRepo {
+	return &UserRepo{db: db}
 }
 
 // GetByUsername uses the db connectio to query users table by username
-func (r *userRepo) GetByUsername(username string) (*model.User, error) {
+func (r *UserRepo) GetByUsername(username string) (*model.User, error) {
   u := &model.User{}
   err := r.db.QueryRow(`SELECT * FROM users WHERE username=$1`, username,
   ).Scan(&u.ID, &u.Username, &u.Email, &u.PasswordHash)
@@ -31,7 +31,7 @@ func (r *userRepo) GetByUsername(username string) (*model.User, error) {
 }
 
 // Create uses db connection to query users table and inserts a new user
-func (r *userRepo) CreateUser(u *model.User) error {
+func (r *UserRepo) CreateUser(u *model.User) error {
   _, err := r.db.Exec(`INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)`,
       u.Username, u.Email, u.PasswordHash,
   )

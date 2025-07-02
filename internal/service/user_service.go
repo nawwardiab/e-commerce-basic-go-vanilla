@@ -14,26 +14,19 @@ import (
 var ErrInvalidCredentials = errors.New("service: invalid credentials")
 var ErrUserExist = errors.New("service: User already exists")
 
-// UserService Interface type (exported)
-// type UserService interface {
-// 	Register(username, email, password string)(*model.User, error)
-// 	Login(username, password string) (*model.User, error)
-// }
-
 
 // unexported userService that has repo attribute 
-type userService struct {
+type UserService struct {
   userRepo repository.UserRepo
 }
 
-
 // Creates new UserService object (methods and db access through repo)
-func NewUserService(r repository.UserRepo) *userService {
-  return &userService{userRepo: r}
+func NewUserService(r *repository.UserRepo) *UserService {
+  return &UserService{userRepo: *r}
 }
 
 // Register – hashes password and returns a new user after querying the database.
-func (s *userService) Register(username, email, password string) (*model.User, error) {
+func (s *UserService) Register(username, email, password string) (*model.User, error) {
   if existing, _ := s.userRepo.GetByUsername(username); existing != nil {
     return nil, ErrInvalidCredentials
   }
@@ -55,7 +48,7 @@ func (s *userService) Register(username, email, password string) (*model.User, e
 }
 
 // Login – queries db and compares input pwd with db pwd.
-func (s *userService) Login(username, password string) (*model.User, error) {
+func (s *UserService) Login(username, password string) (*model.User, error) {
   u, err := s.userRepo.GetByUsername(username)
 
   if err != nil {

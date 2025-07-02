@@ -9,17 +9,17 @@ import (
 	"strconv"
 )
 
-type auth struct {
+type AuthHandler struct {
   userSvc service.UserService
   session session.Session
 }
 
-func NewAuthHandler(userService service.UserService, sess *session.Session) *auth{
-  return &auth{userSvc: userService, session: *sess}
+func NewAuthHandler(userService service.UserService, sess *session.Session) *AuthHandler{
+  return &AuthHandler{userSvc: userService, session: *sess}
 }
 
 // RegisterHandler – handles http request to create a new user
-func (ah *auth) RegisterHandler(w http.ResponseWriter, r *http.Request){
+func (ah *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method == http.MethodGet {
     _ = view.Render(w, "register.tpl", nil)
     return
@@ -53,7 +53,7 @@ func (ah *auth) RegisterHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // LoginHandler – handles http request to log in an existing user and redirect to home page.
-func (ah *auth) LoginHandler(w http.ResponseWriter, r *http.Request){
+func (ah *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request){
 	if r.Method == http.MethodGet {
     _ =  view.Render(w, "login.tpl", nil)
     return
@@ -83,7 +83,7 @@ func (ah *auth) LoginHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // LogoutHandler – removes the session and redirects to login page
-func (ah *auth) LogoutHandler(w http.ResponseWriter, r *http.Request){
+func (ah *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request){
 	err := ah.session.Delete(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

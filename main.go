@@ -14,6 +14,11 @@ import (
 	"server/internal/session"
 )
 
+//TODO
+// !! interface
+// !!COMPLETE Static – serve static/ not static/imgs and update db
+// ! Logging system – for every single request including static usually in var/log/ – for now in the terminal
+
 func main() {
 	// 1. Load configuration
 	cfg, err := config.Load("config.yaml")
@@ -44,19 +49,19 @@ func main() {
 
 
 	// Handlers
-	uh := handler.NewAuthHandler(userSvc, sess)
-	ph := handler.NewProdHandler(productSvc, sess)
+	uh := handler.NewAuthHandler(*userSvc, sess)
+	ph := handler.NewProdHandler(*productSvc, sess)
 	hh := handler.NewHomeHandler(sess)
-	ch := handler.NewCartHandler(sess, productSvc)
+	ch := handler.NewCartHandler(sess, *productSvc)
 
 	http.Handle("/static/", static)
 
 	// 7. register routes
-	http.HandleFunc("/", hh.HomeHandler)
+	http.HandleFunc("/", hh.HomeHandler) // catch all! 
 	http.HandleFunc("/login", uh.LoginHandler)
 	http.HandleFunc("/register", uh.RegisterHandler)
 	http.HandleFunc("/logout", uh.LogoutHandler)
-	http.HandleFunc("/products", ph.ProductsHandler)
+	http.HandleFunc("GET /products", ph.ProductsHandler)
 	http.HandleFunc("GET /products/{id}", ph.ProductDetailsHandler)
 	http.HandleFunc("/cart/add", ch.AddToCartHandler)
 	http.HandleFunc("/cart/remove", ch.RemoveFromCartHandler)

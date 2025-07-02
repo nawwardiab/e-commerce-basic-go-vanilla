@@ -1,0 +1,15 @@
+static_dir: "internal/static/"
+
+server:
+  port: "8080"
+  host: "0.0.0.0"
+
+db:
+  host: "localhost"
+  port: "5432"
+  user: "<your psql user>"
+  pwd: "<your psql password>"
+  dbname: "<your database name>"
+
+session:
+  key: "<your session secret>"

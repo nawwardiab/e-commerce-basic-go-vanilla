@@ -11,16 +11,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type cart struct {
+type CartHandler struct {
   session session.Session
   prodSvc service.ProductService
 }
 
-func NewCartHandler(sess *session.Session, prodSvc service.ProductService) *cart{
-  return &cart{session: *sess, prodSvc: prodSvc}
+func NewCartHandler(sess *session.Session, prodSvc service.ProductService) *CartHandler{
+  return &CartHandler{session: *sess, prodSvc: prodSvc}
 }
 // CartHandler – loads cart from session, renders products in template
-func (c *cart) CartHandler(w http.ResponseWriter, r *http.Request){
+func (c *CartHandler) CartHandler(w http.ResponseWriter, r *http.Request){
   // checks if user logged in
   if !c.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -48,7 +48,7 @@ func (c *cart) CartHandler(w http.ResponseWriter, r *http.Request){
 }
 
 // AddToCartHandler – adds an item to cart (prodId and quantity)
-func (c *cart) AddToCartHandler(w http.ResponseWriter, r *http.Request){
+func (c *CartHandler) AddToCartHandler(w http.ResponseWriter, r *http.Request){
 
   if r.Method != http.MethodPost {
     http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -60,7 +60,6 @@ func (c *cart) AddToCartHandler(w http.ResponseWriter, r *http.Request){
       return
     }
 
-    //! I got id, received product and retracted id from it later (Where is your ear)
     pid, _ := strconv.Atoi(r.FormValue("product_id"))
     qty, _ := strconv.Atoi(r.FormValue("quantity"))
 
@@ -71,28 +70,21 @@ func (c *cart) AddToCartHandler(w http.ResponseWriter, r *http.Request){
       return
     }
 
-    // 3. Fetch product from productSvc
-    prod, err := c.prodSvc.GetProductByID(pid)
-    if err != nil {
-      http.Error(w, "product not found", http.StatusNotFound)
-      return
-    }
+    // 3. Call pure service
+    updatedCart := service.AddToCart(cart, pid, qty)
 
-    // 4. Call pure service
-    updatedCart, _ := service.AddToCart(cart, *prod, qty)
-
-    // 5. Persist updatedCart back into session
+    // 4. Persist updatedCart back into session
     if err := saveCart(&c.session, w, r, updatedCart); err != nil {
       http.Error(w, "cannot save cart", http.StatusBadRequest)
       return
     }
-    // 6. Redirect or render
+    // 5. Redirect or render
     http.Redirect(w, r, "/cart", http.StatusSeeOther)
   }
 }
 
 // RemoveFromCartHandler – removes an item from cart || reduces quantity
-func (c *cart) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
+func (c *CartHandler) RemoveFromCartHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method != http.MethodPost {
         http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
         return

@@ -6,15 +6,15 @@ import (
 	"server/internal/view"
 )
 
-type home struct {
+type HomeHandler struct {
   session session.Session
 }
 
-func NewHomeHandler(sess *session.Session) *home{
-  return &home{session: *sess}
+func NewHomeHandler(sess *session.Session) *HomeHandler{
+  return &HomeHandler{session: *sess}
 }
 
-func (h *home) HomeHandler(w http.ResponseWriter, r *http.Request){
+func (h *HomeHandler) HomeHandler(w http.ResponseWriter, r *http.Request){
 	// 1. check if user is logged in
 	if !h.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusFound)
