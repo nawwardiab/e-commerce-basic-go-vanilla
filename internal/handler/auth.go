@@ -23,7 +23,7 @@ func NewAuthHandler(userService service.UserService, sess *session.Session) *Aut
 func (ah *AuthHandler) GetRegisterHandler(w http.ResponseWriter, r *http.Request){
   middleware.Logger(r)
   _ = view.Render(w, "register.tpl", nil)
-  return    
+    
 }
 
 func (ah *AuthHandler) PostRegisterHandler(w http.ResponseWriter, r *http.Request){
@@ -60,7 +60,6 @@ func (ah *AuthHandler) GetLoginHandler(w http.ResponseWriter, r *http.Request){
   
     middleware.Logger(r)
     _ =  view.Render(w, "login.tpl", nil)
-    return
 } 
 
 func (ah *AuthHandler) PostLoginHandler(w http.ResponseWriter, r *http.Request){
