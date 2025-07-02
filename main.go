@@ -14,9 +14,6 @@ import (
 	"server/internal/session"
 )
 
-//TODO
-// !COMPLETE Static – serve static/ not static/imgs and update db
-// !COMPLETE – Logging system – for every single request including static usually in var/log/ – for now in the terminal
 
 func main() {
 	// 1. Load configuration
