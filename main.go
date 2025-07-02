@@ -14,7 +14,6 @@ import (
 	"server/internal/session"
 )
 
-
 func main() {
 	// 1. Load configuration
 	cfg, err := config.Load("config.yaml")
