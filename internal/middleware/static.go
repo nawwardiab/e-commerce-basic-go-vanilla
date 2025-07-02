@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -14,12 +13,9 @@ func ServeStatic(path string) http.Handler{
   if err != nil {
     log.Fatalf("invalid static directory path %q: %v", path, err)
   }
-  fmt.Println(absStaticDir)
     
   // Serve /static/* from that dir
   fs := http.FileServer(http.Dir(absStaticDir))
   staticDir := http.StripPrefix("/static/", fs)
-  fmt.Println("staticDir: ", staticDir) 
-  fmt.Println(fs)
   return staticDir
 } 

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"server/internal/middleware"
 	"server/internal/session"
 	"server/internal/view"
 )
@@ -18,6 +19,7 @@ func (h *HomeHandler) HomeHandler(w http.ResponseWriter, r *http.Request){
 	// 1. check if user is logged in
 	if !h.session.Has(r) {
     http.Redirect(w, r, "/login", http.StatusFound)
+    middleware.Logger(r)
     return
   } else {    
     // 2. Prepare template data
@@ -28,5 +30,7 @@ func (h *HomeHandler) HomeHandler(w http.ResponseWriter, r *http.Request){
       http.Error(w, err.Error(), http.StatusInternalServerError)
       return
     }
+    middleware.Logger(r)
+
   }
 }
